@@ -3,8 +3,8 @@ const MyButton = ({ text, type, onClick }) => {
 
   return (
     <button
-      onClick={onClick}
       className={["MyButton", `MyButton_${btnType}`].join(" ")}
+      onClick={onClick}
     >
       {text}
     </button>

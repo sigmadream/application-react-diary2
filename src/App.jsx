@@ -1,11 +1,11 @@
-import React, { useReducer, useRef } from "react";
-
-import "./App.css";
+import React, { useEffect, useReducer, useRef } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
+import "./App.css";
+
 import Home from "./pages/Home";
-import Edit from "./pages/Edit";
 import New from "./pages/New";
+import Edit from "./pages/Edit";
 import Diary from "./pages/Diary";
 
 const reducer = (state, action) => {
@@ -31,48 +31,33 @@ const reducer = (state, action) => {
     default:
       return state;
   }
+
+  localStorage.setItem("diary", JSON.stringify(newState));
   return newState;
 };
 
 export const DiaryStateContext = React.createContext();
 export const DiaryDispatchContext = React.createContext();
 
-const dummyData = [
-  {
-    id: 1,
-    emotion: 1,
-    content: "오늘의 일기",
-    date: 1681216150460,
-  },
-  {
-    id: 2,
-    emotion: 2,
-    content: "오늘의 일기2",
-    date: 1681216150475,
-  },
-  {
-    id: 3,
-    emotion: 3,
-    content: "오늘의 일기3",
-    date: 1681216150479,
-  },
-  {
-    id: 4,
-    emotion: 4,
-    content: "오늘의 일기4",
-    date: 1681216150483,
-  },
-  {
-    id: 5,
-    emotion: 5,
-    content: "오늘의 일기5",
-    date: 1681216150490,
-  },
-];
 function App() {
-  const [data, dispatch] = useReducer(reducer, dummyData);
-  const dataId = useRef(0);
+  const [data, dispatch] = useReducer(reducer, []);
 
+  useEffect(() => {
+    const localData = localStorage.getItem("diary");
+    if (localData) {
+      const diaryList = JSON.parse(localData).sort(
+        (a, b) => parseInt(b.id) - parseInt(a.id)
+      );
+
+      if (diaryList.length >= 1) {
+        dataId.current = parseInt(diaryList[0].id) + 1;
+        dispatch({ type: "INIT", data: diaryList });
+      }
+    }
+  }, []);
+
+  const dataId = useRef(0);
+  // CREATE
   const onCreate = (date, content, emotion) => {
     dispatch({
       type: "CREATE",
@@ -85,11 +70,11 @@ function App() {
     });
     dataId.current += 1;
   };
-
+  // REMOVE
   const onRemove = (targetId) => {
     dispatch({ type: "REMOVE", targetId });
   };
-
+  // EDIT
   const onEdit = (targetId, date, content, emotion) => {
     dispatch({
       type: "EDIT",
@@ -116,8 +101,8 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/new" element={<New />} />
+              <Route path="/edit/:id" element={<Edit />} />
               <Route path="/diary/:id" element={<Diary />} />
-              <Route path="/edit" element={<Edit />} />
             </Routes>
           </div>
         </BrowserRouter>

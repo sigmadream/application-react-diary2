@@ -1,14 +1,22 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import MyButton from "./MyButton";
 
 const DiaryItem = ({ id, emotion, content, date }) => {
-  const strDate = new Date(parseInt(date)).toLocaleString();
   const navigate = useNavigate();
+
+  const env = import.meta.env;
+  env.PUBLIC_URL = env.PUBLIC_URL || "";
+
+  const strDate = new Date(parseInt(date)).toLocaleDateString();
+
   const goDetail = () => {
     navigate(`/diary/${id}`);
   };
 
-  console.log(emotion);
+  const goEdit = () => {
+    navigate(`/edit/${id}`);
+  };
 
   return (
     <div className="DiaryItem">
@@ -19,17 +27,17 @@ const DiaryItem = ({ id, emotion, content, date }) => {
           `emotion_img_wrapper_${emotion}`,
         ].join(" ")}
       >
-        <img src={`assets/emotion${emotion}.png`} />
+        <img src={env.PUBLIC_URL + `assets/emotion${emotion}.png`} />
       </div>
-      <div className="info_wrapper" onClick={goDetail}>
+      <div onClick={goDetail} className="info_wrapper">
         <div className="diary_date">{strDate}</div>
-        <div className="diray_content_prview">{content.slice(0, 25)}</div>
+        <div className="diary_content_preview">{content.slice(0, 25)}</div>
       </div>
       <div className="btn_wrapper">
-        <MyButton text={"수정하기"} />
+        <MyButton onClick={goEdit} text={"수정하기"} />
       </div>
     </div>
   );
 };
 
-export default DiaryItem;
+export default React.memo(DiaryItem);
